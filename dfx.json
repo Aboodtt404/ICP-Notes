@@ -1,0 +1,24 @@
+{
+  "canisters": {
+    "notes_backend": {
+      "type": "rust",
+      "package": "notes_backend",
+      "candid": "src/notes_backend/src/notes_backend.did"
+    },
+    "notes_frontend": {
+      "type": "assets",
+      "source": [
+        "src/notes_frontend/dist"
+      ],
+      "dependencies": [
+        "notes_backend"
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "npm run build"
+    }
+  },
+  "version": 1
+} 

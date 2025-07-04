@@ -1,0 +1,16 @@
+type Note = record {
+  id: nat64;
+  title: text;
+  content: text;
+  created_at: nat64;
+  updated_at: nat64;
+  owner: principal;
+};
+
+service : {
+  "add_note": (text, text) -> (nat64);
+  "get_note": (nat64) -> (opt Note) query;
+  "get_all_notes": () -> (vec Note) query;
+  "update_note": (nat64, text, text) -> (opt Note);
+  "delete_note": (nat64) -> (opt Note);
+} 

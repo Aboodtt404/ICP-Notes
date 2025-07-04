@@ -1,0 +1,15 @@
+[package]
+name = "notes_backend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.13"
+ic-cdk-macros = "0.9"
+ic-stable-structures = "0.6.2"
+serde = "1.0"
+serde_bytes = "0.11"
