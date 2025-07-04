@@ -119,10 +119,6 @@ Congratulations! You are now running a full-stack decentralized application on y
 
 ## 🙌 Contributing
 
-Contributions are welcome! If you have ideas for improvements or find any bugs, feel free to open an issue or submit a pull request. Let's make this project even better together.
+Contributions are very much welcome! If you have ideas for improvements or find any bugs, feel free to open an issue or submit a pull request. Let's make this project even better together.
 
 ---
-
-## 📜 License
-
-This project is licensed under the MIT License. 
