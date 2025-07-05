@@ -21,6 +21,16 @@ This creates a complete, self-contained application that doesn't rely on any sin
 
 ---
 
+## ✨ Features
+
+Beyond basic note-taking, this dApp leverages the power of the Internet Computer to offer several advanced features:
+
+-   **📝 Markdown Support**: Write your notes in Markdown for rich text formatting. A simple toggle on each note switches between plain text and a rendered Markdown view.
+-   **🤝 Note Sharing**: Securely share your notes with other users. Just enter another user's Principal ID to grant them either "Read" or "Write" access. You remain in full control as the owner and can revoke access at any time.
+-   **⏳ Version History**: Never lose an edit again. Every time you save a change to a note, the previous version is automatically archived. You can view the entire history of a note and revert to any previous version with a single click.
+
+---
+
 ## 🛠️ Tech Stack
 
 -   **Backend**: 🦀 Rust with the `ic-cdk` (Canister Development Kit)
@@ -57,53 +67,27 @@ Before you begin, make sure you have the following installed:
 
 ## 🚀 Getting Started: Running Locally
 
-Ready to run your own decentralized notes app? Follow these steps carefully.
+Ready to run your own decentralized notes app? The process is now simpler and more reliable.
 
 **1. Start the Local Replica**
 
-First, open a dedicated terminal window and start the local Internet Computer replica. This will be your local blockchain. Keeping this terminal open helps you see live logs.
+First, open a dedicated terminal window and start a clean, local Internet Computer replica. This will be your local blockchain.
 
 ```bash
 dfx start --clean
 ```
 
-**2. Install Frontend Dependencies**
+**2. Generate Canister Interfaces**
 
-In a new terminal, navigate to the frontend directory and install the necessary Node.js packages.
-
-```bash
-cd src/notes_frontend
-npm install
-cd ../..
-```
-
-**3. Deploy the Canisters (Two-Step Process)**
-
-Deploying an ICP app with a frontend that needs its backend's address requires a special two-step process.
-
-**Step 3a: Initial Deploy (Creates Canisters)**
-
-This first deployment creates the canisters on your local network. It will give our backend canister an ID, which the frontend needs.
-
-> **Note:** The frontend build is expected to fail during this step. This is normal!
+In a new terminal, run the `generate` command. This crucial step creates the necessary JavaScript files that allow your frontend to understand the API of your backend canister.
 
 ```bash
-dfx deploy
+dfx generate
 ```
 
-**Step 3b: Build the Frontend**
+**3. Deploy the Application**
 
-Now that the backend has an ID, we can build the frontend. This step reads that canister ID and "bakes" it into the frontend code, so it knows how to communicate with the backend.
-
-```bash
-cd src/notes_frontend
-npm run build
-cd ../..
-```
-
-**Step 3c: Final Deploy (Upload Frontend)**
-
-Deploy one last time. This will be very fast, as it only needs to upload your newly-built frontend asset canister.
+Now, you can deploy both canisters with a single command. This will install dependencies, build the frontend, and deploy both the Rust backend and the Next.js frontend to your local replica.
 
 ```bash
 dfx deploy
@@ -111,9 +95,9 @@ dfx deploy
 
 **4. Access Your dApp! 🎉**
 
-After the final deployment, `dfx` will output the URLs for your canisters. Open the URL for `notes_frontend` in your browser to use the application.
+After the deployment completes, `dfx` will output the URLs for your canisters. Open the URL for `notes_frontend` in your browser to use the application.
 
-Congratulations! You are now running a full-stack decentralized application on your local machine.
+Congratulations! You are now running a full-stack decentralized application with advanced sharing and versioning features.
 
 ---
 
