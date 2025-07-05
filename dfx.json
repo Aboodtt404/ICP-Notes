@@ -3,7 +3,11 @@
     "notes_backend": {
       "type": "rust",
       "package": "notes_backend",
-      "candid": "src/notes_backend/src/notes_backend.did"
+      "candid": "src/notes_backend/src/notes_backend.did",
+      "declarations": {
+        "output": "src/notes_frontend/declarations",
+        "node_compatibility": true
+      }
     },
     "notes_frontend": {
       "type": "assets",
