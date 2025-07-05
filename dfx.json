@@ -8,16 +8,15 @@
     "notes_frontend": {
       "type": "assets",
       "source": [
-        "src/notes_frontend/dist"
+        "src/notes_frontend/out"
       ],
       "dependencies": [
         "notes_backend"
+      ],
+      "build": [
+        "cd src/notes_frontend && npm install",
+        "cd src/notes_frontend && npm run build"
       ]
-    }
-  },
-  "defaults": {
-    "build": {
-      "packtool": "npm run build"
     }
   },
   "version": 1

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getNotesBackendActor } from '../declarations/actor';
-import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, X, Share2, History } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { ShareModal } from '../components/ShareModal';
+import { VersionHistoryModal } from '../components/VersionHistoryModal';
 
-const NoteCard = ({ note, onUpdate, onDelete, formatDate, isLoading }) => {
+const NoteCard = ({ note, onUpdate, onDelete, onToggleMarkdown, onShare, onShowHistory, formatDate, isLoading }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(note.title);
   const [editContent, setEditContent] = useState(note.content);
@@ -37,15 +41,33 @@ const NoteCard = ({ note, onUpdate, onDelete, formatDate, isLoading }) => {
         <div className="flex flex-col h-full">
           <div className="flex-grow">
             <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
-            <p className="text-gray-700 mb-4 whitespace-pre-wrap">{note.content}</p>
+            {note.is_markdown ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]} className="prose lg:prose-xl">{note.content}</ReactMarkdown>
+            ) : (
+              <p className="text-gray-700 mb-4 whitespace-pre-wrap">{note.content}</p>
+            )}
           </div>
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
             <span className="text-xs text-gray-500">
               {formatDate(note.updated_at)}
             </span>
-            <div className="flex space-x-2">
-              <button onClick={() => setIsEditing(true)} className="p-2 text-gray-500 hover:text-blue-500" disabled={isLoading}><Edit size={16} /></button>
-              <button onClick={() => onDelete(note.id)} className="p-2 text-gray-500 hover:text-red-500" disabled={isLoading}><Trash2 size={16} /></button>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={note.is_markdown}
+                  onChange={() => onToggleMarkdown(note.id)}
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                  disabled={isLoading}
+                />
+                <label className="text-xs text-gray-600">Markdown</label>
+              </div>
+              <div className="flex space-x-2">
+                <button onClick={() => onShowHistory(note)} className="p-2 text-gray-500 hover:text-purple-500" disabled={isLoading}><History size={16} /></button>
+                <button onClick={() => onShare(note)} className="p-2 text-gray-500 hover:text-green-500" disabled={isLoading}><Share2 size={16} /></button>
+                <button onClick={() => setIsEditing(true)} className="p-2 text-gray-500 hover:text-blue-500" disabled={isLoading}><Edit size={16} /></button>
+                <button onClick={() => onDelete(note.id)} className="p-2 text-gray-500 hover:text-red-500" disabled={isLoading}><Trash2 size={16} /></button>
+              </div>
             </div>
           </div>
         </div>
@@ -61,6 +83,8 @@ export default function Home() {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sharingNote, setSharingNote] = useState(null);
+  const [historyNote, setHistoryNote] = useState(null);
 
   useEffect(() => {
     const initActor = async () => {
@@ -123,6 +147,65 @@ export default function Home() {
       await loadNotes();
     } catch (err) {
        handleError(err, "Failed to update note.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleMarkdown = async (id) => {
+    if (!notesBackend) return;
+    setIsLoading(true);
+    try {
+      await notesBackend.toggle_markdown(id);
+      await loadNotes();
+    } catch (err) {
+      handleError(err, "Failed to toggle Markdown status.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const shareNote = async (id, principal, permission) => {
+    if (!notesBackend) return;
+    setIsLoading(true);
+    try {
+      // The backend expects an object for the permission variant, not a string
+      const permissionVariant = { [permission]: null };
+      await notesBackend.share_note(id, principal, permissionVariant);
+      await loadNotes();
+      // Close the modal by resetting the sharingNote state
+      setSharingNote(null); 
+    } catch (err) {
+      handleError(err, "Failed to share note. Please check the Principal ID.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const revokeAccess = async (id, principal) => {
+    if (!notesBackend) return;
+    setIsLoading(true);
+    try {
+      await notesBackend.revoke_access(id, principal);
+      await loadNotes();
+      // Close the modal by resetting the sharingNote state
+      setSharingNote(null);
+    } catch (err) {
+      handleError(err, "Failed to revoke access.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const revertNoteVersion = async (id, versionIndex) => {
+    if (!notesBackend) return;
+    setIsLoading(true);
+    try {
+      await notesBackend.revert_to_version(id, versionIndex);
+      await loadNotes();
+      setHistoryNote(null); // Close modal on success
+    } catch (err) {
+      handleError(err, "Failed to revert note version.");
     } finally {
       setIsLoading(false);
     }
@@ -197,6 +280,9 @@ export default function Home() {
                 note={note}
                 onUpdate={updateNote}
                 onDelete={deleteNote}
+                onToggleMarkdown={toggleMarkdown}
+                onShare={setSharingNote}
+                onShowHistory={setHistoryNote}
                 formatDate={formatDate}
                 isLoading={isLoading}
               />
@@ -205,6 +291,27 @@ export default function Home() {
             <p className="text-center text-gray-500 col-span-full">No notes yet. Add one above!</p>
           )}
         </div>
+
+        {sharingNote && (
+          <ShareModal
+            note={sharingNote}
+            onShare={shareNote}
+            onRevoke={revokeAccess}
+            onClose={() => setSharingNote(null)}
+            isLoading={isLoading}
+          />
+        )}
+
+        {historyNote && (
+          <VersionHistoryModal
+            note={historyNote}
+            versions={historyNote.versions}
+            onRevert={revertNoteVersion}
+            onClose={() => setHistoryNote(null)}
+            formatDate={formatDate}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </div>
   );
