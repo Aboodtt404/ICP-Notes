@@ -23,7 +23,7 @@ This creates a complete, self-contained application that doesn't rely on any sin
 
 ## ✨ Features
 
-Beyond basic note-taking, this dApp leverages the power of the Internet Computer to offer several advanced features:
+Beyond basic note-taking, this dApp offer several advanced features:
 
 -   **📝 Markdown Support**: Write your notes in Markdown for rich text formatting. A simple toggle on each note switches between plain text and a rendered Markdown view.
 -   **🤝 Note Sharing**: Securely share your notes with other users. Just enter another user's Principal ID to grant them either "Read" or "Write" access. You remain in full control as the owner and can revoke access at any time.
